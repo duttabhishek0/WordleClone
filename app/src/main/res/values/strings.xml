@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Wordle Clone</string>
+    <string name="GameStats">game_stats</string>
+</resources>
