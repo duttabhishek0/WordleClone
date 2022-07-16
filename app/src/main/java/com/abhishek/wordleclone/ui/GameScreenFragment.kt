@@ -1,13 +1,13 @@
 package com.abhishek.wordleclone.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.abhishek.wordleclone.R
@@ -39,15 +39,7 @@ class GameScreenFragment : Fragment() {
 
         _binding = FragmentGameScreenBinding.inflate(inflater, container, false)
 
-        database = (requireActivity().application as WordleApplication).wordleDatabase
-
-        CoroutineScope(Dispatchers.Default).launch {
-            val currentStat = database.gameStatsDao().getStat(1)
-
-            if (currentStat == null) {
-                database.gameStatsDao().insertStat((currentStat))
-            }
-        }
+        database = (activity?.application as WordleApplication).wordleDatabase
 
         return binding.root
     }
@@ -107,7 +99,7 @@ class GameScreenFragment : Fragment() {
             binding.fifthLettersRow,
             binding.sixthLettersRow
         )
-        val keyboardMap = mapOf<String, Button>(
+        val keyboardMap = mapOf(
             "A" to binding.A,
             "B" to binding.B,
             "C" to binding.C,
@@ -142,8 +134,8 @@ class GameScreenFragment : Fragment() {
             lifecycleScope.launch {
                 viewModel.listOfKeys[letter]!!.collect { key ->
                     button.apply {
-                        setBackgroundColor(resources.getColor(key.backgroundColor))
-                        setTextColor(resources.getColor(key.textColor))
+                        setBackgroundColor(ContextCompat.getColor(context, key.backgroundColor))
+                        setTextColor(ContextCompat.getColor(context, key.textColor))
                     }
                 }
             }
@@ -161,8 +153,8 @@ class GameScreenFragment : Fragment() {
                         }
                         textView.apply {
                             text = s.letter
-                            background = resources.getDrawable(s.backgroundColor)
-                            setTextColor(resources.getColor(s.textColor))
+                            background = ContextCompat.getDrawable(context, s.backgroundColor)
+                            setTextColor(ContextCompat.getColor(context, s.textColor))
                         }
                     }
                 }
@@ -194,7 +186,7 @@ class GameScreenFragment : Fragment() {
 
 
         lifecycleScope.launch {
-            viewModel.signal.collect {it->
+            viewModel.signal.collect {
                 when (it) {
                     Signal.NOTAWORD -> {
                         showInfo(binding.info, "Not in word list")
@@ -218,7 +210,7 @@ class GameScreenFragment : Fragment() {
                     Signal.GAMEOVER -> {
                         CoroutineScope(Dispatchers.Default).launch {
                             val currentStat = database.gameStatsDao().getStat(1)
-                            currentStat!!.levelFailed()
+                            currentStat.levelFailed()
                             bindDialog(binderDialog, currentStat)
                             database.gameStatsDao().updateStat(currentStat)
                         }
@@ -250,7 +242,7 @@ class GameScreenFragment : Fragment() {
 
                         CoroutineScope(Dispatchers.Default).launch {
                             val currentStat = database.gameStatsDao().getStat(1)
-                            currentStat!!.levelCleared(pos)
+                            currentStat.levelCleared(pos)
                             bindDialog(binderDialog, currentStat)
                             database.gameStatsDao().updateStat(currentStat)
                         }
@@ -258,7 +250,7 @@ class GameScreenFragment : Fragment() {
                             tws,
                             viewModel.checkColor(),
                         ) {
-                            winAnimator(tws){
+                            winAnimator(tws) {
 
                                 viewModel.emitColor()
                                 viewModel.resetGame()
@@ -290,7 +282,8 @@ class GameScreenFragment : Fragment() {
 
     private fun bindDialog(binding: StatisticDialogBinding, stats: GameStats) {
         binding.apply {
-            var totalWin = (stats.alpha + stats.beta + stats.gamma + stats.delta + stats.epsilon + stats.zeta)
+            var totalWin =
+                (stats.alpha + stats.beta + stats.gamma + stats.delta + stats.epsilon + stats.zeta)
             totalWin = if (totalWin == 0) 1 else totalWin
 
             played.text = stats.gamePlayed.toString()
@@ -319,13 +312,14 @@ class GameScreenFragment : Fragment() {
             five.countText = stats.epsilon.toString()
 
             six.title = "6"
-            six.percentage = stats.zeta/ totalWin.toFloat()
+            six.percentage = stats.zeta / totalWin.toFloat()
             six.countText = stats.zeta.toString()
         }
     }
 
-    fun winRatio(stats: GameStats): Int {
-        val totalWin = (stats.alpha + stats.beta + stats.gamma + stats.delta + stats.epsilon + stats.zeta)
+    private fun winRatio(stats: GameStats): Int {
+        val totalWin =
+            (stats.alpha + stats.beta + stats.gamma + stats.delta + stats.epsilon + stats.zeta)
         val ratio = totalWin.toFloat() / stats.gamePlayed
         return (ratio * 100).toInt()
     }

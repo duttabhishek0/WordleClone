@@ -8,11 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import com.abhishek.wordleclone.R
 
-
-const val TITLE_RATIO = 0.1f
-const val BAR_RATIO = 0.9f
-
-class DistributionView(val ctx: Context, attrs: AttributeSet) : View(ctx, attrs) {
+class DistributionView(private val ctx: Context, attrs: AttributeSet) : View(ctx, attrs) {
     var title: String = "0"
     private val titleRect = Rect()
     var countText = "0"
