@@ -62,15 +62,15 @@ fun flipTextView(
             textView.setTextColor(textView.resources.getColor(R.color.white))
         }
     }
-//
-//    val fontColorAnimation = ObjectAnimator.ofArgb(
-//        textView,
-//        "textColor",
-//        textView.resources.getColor(R.color.black),
-//
-//    ).apply {
-//        duration = 10
-//    }
+
+    val fontColorAnimation = ObjectAnimator.ofArgb(
+        textView,
+        "textColor",
+        textView.resources.getColor(R.color.black),
+
+    ).apply {
+        duration = 10
+    }
 
     val textViewBackgroundColorAnimation =
         if (reset) ObjectAnimator.ofArgb(
